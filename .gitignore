@@ -1,0 +1,48 @@
+# Local secrets; sanitized examples may be tracked
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+
+# Local credentials, customer evidence, and generated reports
+/secrets/
+/data/
+/artifacts/
+/evidence/
+/reports/
+/uploads/
+*.har
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# JavaScript / TypeScript dependencies and build outputs
+node_modules/
+dist/
+build/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+
+# Editors and operating system
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
