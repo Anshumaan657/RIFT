@@ -1,1 +1,1 @@
-"""HTTP API."""
+"""RIFT operator HTTP API."""

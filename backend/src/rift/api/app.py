@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rift import __version__
+from rift.api.routes import router
 from rift.db.session import create_engine, database_is_ready
 from rift.logging import configure_logging
 from rift.settings import get_settings
@@ -23,6 +24,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="RIFT Operator API", version=__version__, lifespan=lifespan)
+app.include_router(router)
 
 
 @app.get("/api/v1/health/live", tags=["health"])

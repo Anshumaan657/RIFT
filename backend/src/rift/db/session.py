@@ -1,4 +1,4 @@
-"""Database engine and readiness helpers."""
+"""Database engine, sessions, and readiness helpers."""
 
 from collections.abc import AsyncIterator
 
@@ -10,15 +10,11 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from rift.settings import Settings
+from rift.settings import Settings, get_settings
 
 
 def create_engine(settings: Settings) -> AsyncEngine:
-    return create_async_engine(
-        settings.database_url.get_secret_value(),
-        pool_pre_ping=True,
-        pool_recycle=300,
-    )
+    return create_async_engine(settings.database_url.get_secret_value(), pool_pre_ping=True)
 
 
 def create_session_factory(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
@@ -30,6 +26,15 @@ async def session_scope(
 ) -> AsyncIterator[AsyncSession]:
     async with factory() as session:
         yield session
+
+
+async def get_session() -> AsyncIterator[AsyncSession]:
+    engine = create_engine(get_settings())
+    try:
+        async for session in session_scope(create_session_factory(engine)):
+            yield session
+    finally:
+        await engine.dispose()
 
 
 async def database_is_ready(engine: AsyncEngine) -> bool:

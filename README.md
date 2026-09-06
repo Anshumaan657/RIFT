@@ -7,10 +7,10 @@ and clear reports. It does not automatically fix or deploy changes to a target.
 
 ## Current status
 
-Phase 2 provides the application foundation: a FastAPI backend, PostgreSQL
-connection and migration setup, durable-worker placeholder, React operator shell,
-Docker Compose environment, typed contracts, tests, and CI. Security checks and
-customer-target execution are not implemented.
+Phase 4 provides the persistent onboarding model, single-operator authentication,
+authorization and target verification records, immutable assessment snapshots,
+and the mandatory controlled HTTP safety boundary. Security check execution and
+report generation remain for later phases.
 
 ## V1 direction
 
@@ -19,6 +19,7 @@ environments and synthetic data. Focus on a small, defined set of checks,
 strict scope enforcement, and findings a developer can independently reproduce.
 
 See [V1 scope](docs/V1_SCOPE.md) and [architecture](docs/ARCHITECTURE.md).
+Phase 4 operation and invariants are documented in [Phase 4](docs/PHASE4.md).
 
 ## Folder structure
 
@@ -54,7 +55,15 @@ python3 -c "import base64,secrets; print(base64.urlsafe_b64encode(secrets.token_
 ```
 
 Put the generated value in `RIFT_MASTER_KEY_B64` and choose a local PostgreSQL
-password. Then start the application foundation:
+password. Generate the bootstrapped operator's Argon2id password hash without
+putting the password in shell history:
+
+```sh
+PYTHONPATH=backend/src .venv/bin/python scripts/bootstrap_operator.py
+```
+
+Put the resulting hash in `RIFT_OPERATOR_PASSWORD_HASH`, set a random
+`RIFT_SESSION_SECRET`, and then start the application:
 
 ```sh
 docker compose --env-file .env -f infra/compose.yaml up --build
@@ -77,8 +86,8 @@ cd frontend && npm ci && cd ..
 Run validation from the repository root:
 
 ```sh
-ruff format --check backend/src tests/unit
-ruff check backend/src tests/unit
+ruff format --check backend/src tests/unit tests/safety scripts
+ruff check backend/src tests/unit tests/safety scripts
 (cd backend && mypy && pytest)
 (cd frontend && npm run format:check && npm run lint && npm test && npm run build)
 docker compose --env-file .env -f infra/compose.yaml config --quiet
