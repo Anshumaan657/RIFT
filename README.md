@@ -7,8 +7,10 @@ and clear reports. It does not automatically fix or deploy changes to a target.
 
 ## Current status
 
-Initial project scaffold only. No application, scanner, API, or executable tests
-have been implemented. Frameworks and dependencies have not been selected.
+Phase 2 provides the application foundation: a FastAPI backend, PostgreSQL
+connection and migration setup, durable-worker placeholder, React operator shell,
+Docker Compose environment, typed contracts, tests, and CI. Security checks and
+customer-target execution are not implemented.
 
 ## V1 direction
 
@@ -42,9 +44,51 @@ RIFT/
 
 ## Development
 
-Runtime setup and run commands will be added when the initial technology stack
-is chosen. Empty implementation folders contain `.gitkeep` files so Git tracks
-them. There is no install, run, or test command yet.
+Requirements: Python 3.12, Node.js 22, and Docker with Compose.
+
+Create local configuration and replace every placeholder before starting:
+
+```sh
+cp .env.example .env
+python3 -c "import base64,secrets; print(base64.urlsafe_b64encode(secrets.token_bytes(32)).decode())"
+```
+
+Put the generated value in `RIFT_MASTER_KEY_B64` and choose a local PostgreSQL
+password. Then start the application foundation:
+
+```sh
+docker compose --env-file .env -f infra/compose.yaml up --build
+```
+
+By default the operator shell is at `http://localhost:15173`; liveness and
+readiness are at `http://localhost:18000/api/v1/health/live` and
+`/api/v1/health/ready`. Host ports can be changed in `.env`.
+
+For host-based development:
+
+```sh
+python3.12 -m venv .venv
+. .venv/bin/activate
+python -m pip install --requirement backend/requirements.lock
+python -m pip install --no-deps --editable backend
+cd frontend && npm ci && cd ..
+```
+
+Run validation from the repository root:
+
+```sh
+ruff format --check backend/src tests/unit
+ruff check backend/src tests/unit
+(cd backend && mypy && pytest)
+(cd frontend && npm run format:check && npm run lint && npm test && npm run build)
+docker compose --env-file .env -f infra/compose.yaml config --quiet
+```
+
+Run migrations inside the API container:
+
+```sh
+docker compose --env-file .env -f infra/compose.yaml run --rm api alembic upgrade head
+```
 
 ## Safety
 

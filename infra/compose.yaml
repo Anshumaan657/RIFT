@@ -1,0 +1,73 @@
+name: rift
+
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Copy .env.example to .env and set POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [rift_private]
+
+  api:
+    build: ../backend
+    environment:
+      RIFT_ENVIRONMENT: ${RIFT_ENVIRONMENT:-development}
+      RIFT_LOG_LEVEL: ${RIFT_LOG_LEVEL:-INFO}
+      RIFT_DATABASE_URL: ${RIFT_DATABASE_URL:?Set RIFT_DATABASE_URL}
+      RIFT_MASTER_KEY_B64: ${RIFT_MASTER_KEY_B64:?Set RIFT_MASTER_KEY_B64}
+      RIFT_FRONTEND_ORIGIN: ${RIFT_FRONTEND_ORIGIN:-http://localhost:15173}
+    ports: ["127.0.0.1:${RIFT_API_PORT:-18000}:8000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [rift_private, rift_ui]
+
+  worker:
+    build: ../backend
+    command: ["python", "-m", "rift.worker.main"]
+    environment:
+      RIFT_ENVIRONMENT: ${RIFT_ENVIRONMENT:-development}
+      RIFT_LOG_LEVEL: ${RIFT_LOG_LEVEL:-INFO}
+      RIFT_DATABASE_URL: ${RIFT_DATABASE_URL:?Set RIFT_DATABASE_URL}
+      RIFT_MASTER_KEY_B64: ${RIFT_MASTER_KEY_B64:?Set RIFT_MASTER_KEY_B64}
+      RIFT_FRONTEND_ORIGIN: ${RIFT_FRONTEND_ORIGIN:-http://localhost:15173}
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks: [rift_private]
+
+  frontend:
+    build: ../frontend
+    environment:
+      VITE_API_PROXY_TARGET: http://api:8000
+    ports: ["127.0.0.1:${RIFT_FRONTEND_PORT:-15173}:5173"]
+    depends_on:
+      api: { condition: service_healthy }
+    networks: [rift_ui]
+
+  lab-placeholder:
+    build: ../backend
+    command: ["python", "-c", "import time; print('Phase 3 lab placeholder ready', flush=True); time.sleep(31536000)"]
+    environment:
+      RIFT_DATABASE_URL: postgresql+asyncpg://unused:unused@localhost/unused
+      RIFT_MASTER_KEY_B64: RIFT_PHASE_2_PLACEHOLDER_KEY_NOT_FOR_USE_123456789
+    networks: [lab_private]
+
+networks:
+  rift_private: { internal: true }
+  rift_ui: {}
+  lab_private: { internal: true }
+
+volumes:
+  postgres_data: {}
