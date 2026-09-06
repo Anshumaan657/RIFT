@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "check_id": "RIFT-AUTHZ-001",
+  "check_version": 1,
+  "outcome": "passed",
+  "reason_code": "CROSS_USER_ACCESS_DENIED",
+  "target_id": "40000000-0000-4000-8000-000000000001",
+  "resource_expectation_id": "60000000-0000-4000-8000-000000000001",
+  "identity_ids": [
+    "50000000-0000-4000-8000-000000000001",
+    "50000000-0000-4000-8000-000000000002"
+  ],
+  "started_at": "2026-09-06T09:16:00Z",
+  "finished_at": "2026-09-06T09:16:02Z",
+  "request_count": 2,
+  "evidence_refs": [
+    "70000000-0000-4000-8000-000000000002",
+    "70000000-0000-4000-8000-000000000003"
+  ],
+  "summary": "The owner baseline was proven and the other test identity was denied access.",
+  "limitations": [
+    "Only the supplied pair of identities and synthetic resource were tested.",
+    "A passed result does not establish authorization correctness elsewhere."
+  ],
+  "finding_proposals": []
+}

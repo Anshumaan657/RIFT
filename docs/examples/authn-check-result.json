@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "check_id": "RIFT-AUTHN-001",
+  "check_version": 1,
+  "outcome": "finding",
+  "reason_code": "PRIVATE_MARKER_EXPOSED_WITHOUT_AUTH",
+  "target_id": "40000000-0000-4000-8000-000000000001",
+  "resource_expectation_id": "60000000-0000-4000-8000-000000000001",
+  "identity_ids": [],
+  "started_at": "2026-09-06T09:15:00Z",
+  "finished_at": "2026-09-06T09:15:01Z",
+  "request_count": 1,
+  "evidence_refs": ["70000000-0000-4000-8000-000000000001"],
+  "summary": "The configured private synthetic marker was returned without authentication.",
+  "limitations": [
+    "Only the supplied synthetic resource and endpoint were tested.",
+    "No alternate paths, methods, or identifiers were attempted."
+  ],
+  "finding_proposals": [
+    {
+      "validation_state": "reproduced",
+      "severity": "high",
+      "title": "Private synthetic resource accessible without authentication",
+      "severity_rationale": "The response exposed the exact marker declared for a private synthetic resource.",
+      "expected_behavior": "An unauthenticated request must not return the private synthetic marker.",
+      "observed_behavior": "A 200 response contained the exact configured marker.",
+      "evidence_refs": ["70000000-0000-4000-8000-000000000001"]
+    }
+  ]
+}

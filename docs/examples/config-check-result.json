@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "check_id": "RIFT-CONFIG-001",
+  "check_version": 1,
+  "outcome": "finding",
+  "reason_code": "CONFIG_OBSERVATIONS_RECORDED",
+  "target_id": "40000000-0000-4000-8000-000000000001",
+  "resource_expectation_id": null,
+  "identity_ids": [],
+  "started_at": "2026-09-06T09:17:00Z",
+  "finished_at": "2026-09-06T09:17:01Z",
+  "request_count": 1,
+  "evidence_refs": ["70000000-0000-4000-8000-000000000004"],
+  "summary": "The inspected HTTPS response did not include an HSTS header.",
+  "limitations": [
+    "This is an observable configuration property, not proof of exploitation.",
+    "Only the configured path and response were inspected."
+  ],
+  "finding_proposals": [
+    {
+      "validation_state": "needs_review",
+      "severity": "informational",
+      "title": "HSTS header not observed on configured HTTPS response",
+      "severity_rationale": "Missing HSTS can reduce transport downgrade resistance but is not independently exploitable evidence.",
+      "expected_behavior": "The reviewed HTTPS endpoint is expected to return an appropriate Strict-Transport-Security policy.",
+      "observed_behavior": "The final in-scope response did not contain Strict-Transport-Security.",
+      "evidence_refs": ["70000000-0000-4000-8000-000000000004"]
+    }
+  ]
+}

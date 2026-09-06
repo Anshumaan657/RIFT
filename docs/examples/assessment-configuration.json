@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "organization_id": "10000000-0000-4000-8000-000000000001",
+  "application_id": "20000000-0000-4000-8000-000000000001",
+  "authorization_record_id": "30000000-0000-4000-8000-000000000001",
+  "target_id": "40000000-0000-4000-8000-000000000001",
+  "target": {
+    "scheme": "https",
+    "hostname": "staging.customer.test",
+    "port": 443,
+    "base_path": "/api/"
+  },
+  "local_lab_mode": false,
+  "selected_checks": [
+    { "check_id": "RIFT-AUTHN-001", "check_version": 1 },
+    { "check_id": "RIFT-AUTHZ-001", "check_version": 1 },
+    { "check_id": "RIFT-CONFIG-001", "check_version": 1 }
+  ],
+  "identity_refs": [
+    {
+      "identity_id": "50000000-0000-4000-8000-000000000001",
+      "label": "synthetic-user-a"
+    },
+    {
+      "identity_id": "50000000-0000-4000-8000-000000000002",
+      "label": "synthetic-user-b"
+    }
+  ],
+  "resource_expectations": [
+    {
+      "resource_expectation_id": "60000000-0000-4000-8000-000000000001",
+      "endpoint_template": "records/{resource_id}",
+      "resource_id": "synthetic-record-b",
+      "access": "private",
+      "owner_identity_id": "50000000-0000-4000-8000-000000000002",
+      "content_marker_ref": "marker:synthetic-record-b:v1",
+      "content_marker": "RIFT_SYNTHETIC_RECORD_B_7F2A"
+    }
+  ],
+  "configuration_path": "status",
+  "limits": {
+    "max_requests": 10,
+    "max_concurrency": 1,
+    "requests_per_second": 1,
+    "connect_timeout_seconds": 5,
+    "request_timeout_seconds": 10,
+    "max_response_bytes": 262144,
+    "assessment_timeout_seconds": 300
+  },
+  "authorization": {
+    "valid_from": "2026-09-06T09:00:00Z",
+    "valid_until": "2026-09-06T10:00:00Z",
+    "allowed_methods": ["GET", "HEAD"]
+  }
+}

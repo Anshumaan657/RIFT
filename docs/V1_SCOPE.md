@@ -44,7 +44,10 @@ that an active assessment is incapable of changing application state.
 4. Evidence supports independent reproduction without exposing credentials.
 5. The report states coverage limitations and distinguishes incomplete runs.
 
-## Decisions still needed
+## Decisions fixed for V1
 
-Choose the first check family, local lab, supported authentication method,
-technology stack, and evidence storage approach before implementing execution.
+The check catalogue, local-lab requirements, bearer-token authentication,
+technology stack, and encrypted evidence-storage approach are fixed in
+[`V1_ROADMAP.md`](V1_ROADMAP.md). Phase 1 specifications are recorded in
+[`check-catalogue.md`](check-catalogue.md), [`threat-model.md`](threat-model.md),
+and the accepted architecture decisions under [`adr/`](adr/).

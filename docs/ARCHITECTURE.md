@@ -27,5 +27,7 @@ not instructions for the testing system.
 Keep credentials and raw evidence out of Git, normal logs, and model prompts.
 Define storage, retention, and access controls before accepting customer data.
 
-No API contracts, database schema, background queue, or model provider are
-selected by this scaffold. Add those only as concrete V1 needs are agreed.
+The V1 stack, domain model, required API surface, PostgreSQL-backed worker queue,
+and evidence-storage approach are fixed in [`V1_ROADMAP.md`](V1_ROADMAP.md) and
+the accepted records under [`adr/`](adr/). Phase 2 will turn those decisions into
+schemas and executable contracts. V1 has no required model provider.
