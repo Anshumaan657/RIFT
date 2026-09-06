@@ -1,0 +1,40 @@
+services:
+  lab-vulnerable:
+    build:
+      context: ..
+      dockerfile: lab/Dockerfile
+    environment: { RIFT_LAB_MODE: vulnerable }
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [lab_private]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+  lab-fixed:
+    build:
+      context: ..
+      dockerfile: lab/Dockerfile
+    environment: { RIFT_LAB_MODE: fixed }
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [lab_private]
+    configs:
+      - source: lab_verify_script
+        target: /lab/verify_lab.py
+        mode: 0444
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+configs:
+  lab_verify_script:
+    file: ../lab/scripts/verify_lab.py

@@ -1,0 +1,43 @@
+{
+  "users": [
+    {
+      "id": "user-a",
+      "label": "Synthetic User A",
+      "token": "rift-lab-user-a-token",
+      "expired": false
+    },
+    {
+      "id": "user-b",
+      "label": "Synthetic User B",
+      "token": "rift-lab-user-b-token",
+      "expired": false
+    },
+    {
+      "id": "expired-user",
+      "label": "Synthetic Expired User",
+      "token": "rift-lab-expired-token",
+      "expired": true
+    }
+  ],
+  "private_records": {
+    "synthetic-record-a": {
+      "id": "synthetic-record-a",
+      "owner_id": "user-a",
+      "marker": "RIFT_SYNTHETIC_RECORD_A_2C91",
+      "content": "Synthetic data belonging to User A"
+    },
+    "synthetic-record-b": {
+      "id": "synthetic-record-b",
+      "owner_id": "user-b",
+      "marker": "RIFT_SYNTHETIC_RECORD_B_7F2A",
+      "content": "Synthetic data belonging to User B"
+    }
+  },
+  "public_records": {
+    "synthetic-public": {
+      "id": "synthetic-public",
+      "marker": "RIFT_SYNTHETIC_PUBLIC_8D40",
+      "content": "Intentionally public synthetic data"
+    }
+  }
+}
