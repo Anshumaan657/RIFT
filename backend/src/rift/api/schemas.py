@@ -6,7 +6,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from rift.domain.models import EnvironmentType
+from rift.domain.models import EnvironmentType, ReportFormat
+from rift.reports.models import ReportVariant
 
 
 class LoginRequest(BaseModel):
@@ -87,6 +88,12 @@ class AssessmentCreate(BaseModel):
         if not values or set(values) - approved:
             raise ValueError("selected_checks contains an unapproved V1 check")
         return values
+
+
+class ReportCreate(BaseModel):
+    format: ReportFormat
+    variant: ReportVariant
+    idempotency_key: str | None = Field(default=None, max_length=255)
 
 
 class ORMResponse(BaseModel):

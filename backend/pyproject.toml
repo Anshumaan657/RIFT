@@ -51,6 +51,8 @@ select = ["E", "F", "I", "B", "UP", "ASYNC", "S"]
 "../tests/**/*.py" = ["S101"]
 "src/rift/api/dependencies.py" = ["B008"]
 "src/rift/api/routes.py" = ["B008"]
+"src/rift/api/report_routes.py" = ["B008"]
+"src/rift/reports/render.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -60,5 +62,5 @@ mypy_path = "src"
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["structlog.*"]
+module = ["structlog.*", "weasyprint.*"]
 ignore_missing_imports = true
