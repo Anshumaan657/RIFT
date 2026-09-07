@@ -53,10 +53,17 @@ services:
       RIFT_LOCAL_LAB_MODE: ${RIFT_LOCAL_LAB_MODE:-false}
     depends_on:
       postgres: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-m", "rift.worker.health", "check"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
     networks: [rift_private]
 
   frontend:
-    build: ../frontend
+    build:
+      context: ../frontend
+      target: development
     environment:
       VITE_API_PROXY_TARGET: http://api:8000
     ports: ["127.0.0.1:${RIFT_FRONTEND_PORT:-15173}:5173"]

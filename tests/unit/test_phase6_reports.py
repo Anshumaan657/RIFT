@@ -103,6 +103,6 @@ def test_pdf_renderer_outputs_a_pdf():
         )
     except TypeError as exc:
         if "pydyf.PDF" in str(exc) or "positional argument" in str(exc):
-            pytest.skip("local virtualenv has stale WeasyPrint/pydyf; lock pins WeasyPrint 66")
+            pytest.skip("local virtualenv has stale WeasyPrint/pydyf; lock pins WeasyPrint 69")
         raise
     assert content.startswith(b"%PDF-")

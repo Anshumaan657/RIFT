@@ -59,10 +59,17 @@ RESOURCE = ResourceInput(
 @pytest.mark.parametrize(
     ("upstream", "outcome", "reason"),
     [
-        (response(200, b"RIFT_SYNTHETIC_RECORD_B_7F2A"), CheckOutcome.FINDING,
-         "ANONYMOUS_MARKER_EXPOSED"),
+        (
+            response(200, b"RIFT_SYNTHETIC_RECORD_B_7F2A"),
+            CheckOutcome.FINDING,
+            "ANONYMOUS_MARKER_EXPOSED",
+        ),
         (response(401), CheckOutcome.PASSED, "ANONYMOUS_ACCESS_DENIED"),
-        (response(200, b"different"), CheckOutcome.INCONCLUSIVE, "SUCCESS_WITHOUT_MARKER"),
+        (
+            response(200, b"different"),
+            CheckOutcome.INCONCLUSIVE,
+            "SUCCESS_WITHOUT_MARKER",
+        ),
         (response(404), CheckOutcome.INCONCLUSIVE, "RESOURCE_NOT_FOUND"),
         (response(500), CheckOutcome.ERROR, "SERVER_ERROR"),
         (response(200, redirects=(302,)), CheckOutcome.PASSED, "LOGIN_REDIRECT"),

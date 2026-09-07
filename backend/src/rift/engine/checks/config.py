@@ -10,9 +10,7 @@ IDENTIFIER = "RIFT-CONFIG-001"
 VERSION = "1.0"
 
 
-async def run(
-    client: ControlledClient, *, is_https: bool, path: str = "/"
-) -> CheckResult:
+async def run(client: ControlledClient, *, is_https: bool, path: str = "/") -> CheckResult:
     started = datetime.now(UTC)
     response = await client.request("HEAD", path)
     method = "HEAD"
@@ -26,8 +24,7 @@ async def run(
         "https": is_https,
         "hsts": bool(headers.get("strict-transport-security")) if is_https else False,
         "csp": bool(headers.get("content-security-policy")) if "html" in content_type else None,
-        "x_content_type_options": headers.get("x-content-type-options", "").lower()
-        == "nosniff",
+        "x_content_type_options": headers.get("x-content-type-options", "").lower() == "nosniff",
         "referrer_policy": bool(headers.get("referrer-policy")),
     }
     raw_cookie_flags = response.security_metadata.get("cookie_flags", [])
@@ -37,14 +34,14 @@ async def run(
     for index, flags in enumerate(cookie_flags):
         if isinstance(flags, dict):
             missing.extend(
-                f"cookie[{index}].{flag}"
-                for flag, present in flags.items()
-                if present is False
+                f"cookie[{index}].{flag}" for flag, present in flags.items() if present is False
             )
     return result(
-        IDENTIFIER, started,
+        IDENTIFIER,
+        started,
         CheckOutcome.FINDING if missing else CheckOutcome.PASSED,
         "CONFIG_OBSERVATIONS_RECORDED",
         "Configuration observations were recorded; missing controls are contextual observations.",
-        capture, observations={"missing": missing, **observations}
+        capture,
+        observations={"missing": missing, **observations},
     )

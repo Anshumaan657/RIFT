@@ -1,16 +1,17 @@
 """FastAPI application entrypoint."""
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from rift import __version__
 from rift.api.report_routes import router as report_router
 from rift.api.routes import router
+from rift.api.security_headers import apply_security_headers
 from rift.api.ui_routes import router as ui_router
 from rift.db.session import create_engine, database_is_ready
 from rift.logging import configure_logging
@@ -30,6 +31,21 @@ app = FastAPI(title="RIFT Operator API", version=__version__, lifespan=lifespan)
 app.include_router(router)
 app.include_router(report_router)
 app.include_router(ui_router)
+
+
+@app.middleware("http")
+async def security_headers(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    response = await call_next(request)
+    apply_security_headers(
+        response,
+        enable_hsts=(
+            request.url.scheme == "https"
+            or request.headers.get("x-forwarded-proto", "").lower() == "https"
+        ),
+    )
+    return response
 
 
 @app.exception_handler(HTTPException)
@@ -52,11 +68,7 @@ async def validation_error(_request: Request, exc: RequestValidationError) -> JS
             "code": "VALIDATION_ERROR",
             "message": "request validation failed",
             "details": [
-                {
-                    key: value
-                    for key, value in error.items()
-                    if key not in {"input", "ctx"}
-                }
+                {key: value for key, value in error.items() if key not in {"input", "ctx"}}
                 for error in exc.errors()
             ],
         },

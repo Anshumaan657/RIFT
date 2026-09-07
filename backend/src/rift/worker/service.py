@@ -77,8 +77,11 @@ async def execute_job(
     if target is None:
         raise RuntimeError("target disappeared")
     normalized = NormalizedTarget.create(
-        target.scheme, target.hostname, target.port, target.base_path_prefix,
-        json.loads(target.validated_ips)
+        target.scheme,
+        target.hostname,
+        target.port,
+        target.base_path_prefix,
+        json.loads(target.validated_ips),
     )
     audit = AuditChain()
     client = SafeHttpClient(
@@ -106,9 +109,7 @@ async def execute_job(
             is_https=target.scheme == "https",
         )
     finally:
-        await persist_network_audit(
-            session, assessment.id, audit.records(str(assessment.id))
-        )
+        await persist_network_audit(session, assessment.id, audit.records(str(assessment.id)))
         await session.commit()
     if check_result.outcome == CheckOutcome.CANCELLED:
         assessment.state = AssessmentState.CANCELLING
@@ -116,9 +117,7 @@ async def execute_job(
     await session.commit()
 
 
-async def persist_terminal_failure(
-    session: AsyncSession, job: Job, error_code: str
-) -> None:
+async def persist_terminal_failure(session: AsyncSession, job: Job, error_code: str) -> None:
     terminal = result(
         job.check_identifier,
         datetime.now(UTC),
@@ -172,9 +171,7 @@ async def finalize_assessment(session: AsyncSession, assessment_id: UUID) -> Non
     await session.commit()
 
 
-async def _resource_input(
-    session: AsyncSession, application_id: UUID
-) -> ResourceInput | None:
+async def _resource_input(session: AsyncSession, application_id: UUID) -> ResourceInput | None:
     expectation = await session.scalar(
         select(ResourceExpectation)
         .where(
@@ -203,9 +200,7 @@ async def _resource_input(
         if alternate
         else None
     )
-    path = expectation.endpoint_template.replace(
-        "{resource_id}", expectation.synthetic_resource_id
-    )
+    path = expectation.endpoint_template.replace("{resource_id}", expectation.synthetic_resource_id)
     return ResourceInput(path, expectation.content_marker, owner_token, alternate_token)
 
 

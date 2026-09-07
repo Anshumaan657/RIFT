@@ -4,7 +4,7 @@ import json
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from rift.api.dependencies import current_operator, require_csrf
@@ -21,6 +21,7 @@ from rift.domain.models import (
     Target,
     TestIdentity,
 )
+from rift.maintenance.service import PURGED_RAW_EVIDENCE
 from rift.reports.evidence import sanitized_record
 from rift.reports.models import ReportArtifact
 
@@ -250,3 +251,25 @@ async def list_reports(
         }
         for row in rows
     ]
+
+
+@router.delete(
+    "/assessments/{assessment_id}/raw-evidence",
+    dependencies=[Depends(require_csrf)],
+)
+async def purge_assessment_raw_evidence(
+    assessment_id: UUID,
+    session: AsyncSession = Depends(get_session),
+) -> dict[str, int]:
+    if await session.get(Assessment, assessment_id) is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "assessment not found")
+    result = await session.execute(
+        update(Evidence)
+        .where(
+            Evidence.assessment_id == assessment_id,
+            Evidence.encrypted_raw_blob_ref != PURGED_RAW_EVIDENCE,
+        )
+        .values(encrypted_raw_blob_ref=PURGED_RAW_EVIDENCE)
+    )
+    await session.commit()
+    return {"raw_evidence_purged": int(result.rowcount or 0)}

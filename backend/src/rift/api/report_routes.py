@@ -210,3 +210,29 @@ async def download_report(
             "X-RIFT-Review-Status": artifact.review_status.value,
         },
     )
+
+
+@router.delete(
+    "/reports/{report_id}",
+    dependencies=[Depends(require_csrf)],
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_report(
+    report_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    _operator: str = Depends(current_operator),
+) -> Response:
+    artifact = await session.get(ReportArtifact, report_id)
+    if artifact is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "report not found")
+    referenced = await session.scalar(
+        select(ReportArtifact.id).where(ReportArtifact.source_artifact_id == report_id).limit(1)
+    )
+    if referenced is not None:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "delete the reviewed derivative before deleting its source draft",
+        )
+    await session.delete(artifact)
+    await session.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

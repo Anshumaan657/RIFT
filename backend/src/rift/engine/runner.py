@@ -30,26 +30,41 @@ async def run_check(
         if identifier == config.IDENTIFIER:
             return await config.run(client, is_https=is_https)
         return result(
-            identifier, started, CheckOutcome.SKIPPED, "UNSUPPORTED_CHECK",
-            "The check is not in the approved V1 catalogue."
+            identifier,
+            started,
+            CheckOutcome.SKIPPED,
+            "UNSUPPORTED_CHECK",
+            "The check is not in the approved V1 catalogue.",
         )
     except CancellationError:
         return result(
-            identifier, started, CheckOutcome.CANCELLED, "ASSESSMENT_CANCELLED",
-            "The assessment was cancelled before the request completed."
+            identifier,
+            started,
+            CheckOutcome.CANCELLED,
+            "ASSESSMENT_CANCELLED",
+            "The assessment was cancelled before the request completed.",
         )
     except BudgetExceededError:
         return result(
-            identifier, started, CheckOutcome.ERROR, "REQUEST_BUDGET_EXHAUSTED",
-            "The server-owned request budget was exhausted."
+            identifier,
+            started,
+            CheckOutcome.ERROR,
+            "REQUEST_BUDGET_EXHAUSTED",
+            "The server-owned request budget was exhausted.",
         )
     except RuntimeExceededError:
         return result(
-            identifier, started, CheckOutcome.ERROR, "RUNTIME_EXPIRED",
-            "The assessment runtime limit expired."
+            identifier,
+            started,
+            CheckOutcome.ERROR,
+            "RUNTIME_EXPIRED",
+            "The assessment runtime limit expired.",
         )
     except PolicyError as exc:
         return result(
-            identifier, started, CheckOutcome.ERROR, "SAFETY_POLICY_REJECTED",
-            f"The controlled client rejected the request: {exc}"
+            identifier,
+            started,
+            CheckOutcome.ERROR,
+            "SAFETY_POLICY_REJECTED",
+            f"The controlled client rejected the request: {exc}",
         )

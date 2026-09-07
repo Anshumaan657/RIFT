@@ -1,5 +1,6 @@
 """Server-owned V1 ceilings and customer-requested lower limits."""
 
+import ipaddress
 from dataclasses import dataclass
 
 from rift.settings import Settings
@@ -35,6 +36,7 @@ class SafetyPolicy:
     runtime_seconds: int
     local_lab_mode: bool = False
     user_agent: str = "RIFT-V1/1.0"
+    allowed_target_networks: tuple[ipaddress.IPv4Network | ipaddress.IPv6Network, ...] = ()
 
     @classmethod
     def from_settings(
@@ -97,4 +99,5 @@ class SafetyPolicy:
                 )
             ),
             local_lab_mode=settings.local_lab_mode,
+            allowed_target_networks=settings.allowed_target_networks,
         )

@@ -98,7 +98,7 @@ def test_prohibited_schemes_and_host_tricks(scheme: str, host: str) -> None:
         "192.168.0.1",
         "169.254.169.254",
         "100.64.0.1",
-        "0.0.0.0",
+        "0.0.0.0",  # noqa: S104 - unsafe address is the test subject
         "224.0.0.1",
         "::1",
         "fe80::1",
@@ -111,17 +111,13 @@ def test_prohibited_schemes_and_host_tricks(scheme: str, host: str) -> None:
 async def test_non_global_addresses_are_blocked(value: str) -> None:
     current_target = target(value)
     with pytest.raises(PolicyError):
-        await client(target=current_target, resolver=resolver_for(value)).request(
-            "GET", "/api/"
-        )
+        await client(target=current_target, resolver=resolver_for(value)).request("GET", "/api/")
 
 
 @pytest.mark.asyncio
 async def test_local_lab_allows_loopback_only() -> None:
     lab_policy = policy(local_lab_mode=True)
-    loopback_target = NormalizedTarget.create(
-        "http", "localhost", 8080, "/", ["127.0.0.1"]
-    )
+    loopback_target = NormalizedTarget.create("http", "localhost", 8080, "/", ["127.0.0.1"])
     response = await client(
         target=loopback_target,
         policy=lab_policy,
@@ -169,9 +165,7 @@ def test_base_path_escapes_are_rejected(path: str) -> None:
 
 @pytest.mark.asyncio
 async def test_redirects_stay_in_exact_scope_and_are_limited() -> None:
-    outside = FakeTransport(
-        [TransportResponse(302, {"location": "https://evil.test/api"}, b"")]
-    )
+    outside = FakeTransport([TransportResponse(302, {"location": "https://evil.test/api"}, b"")])
     with pytest.raises(ScopeViolation):
         await client(transport=outside).request("GET", "/api/")
 
@@ -222,9 +216,9 @@ async def test_budget_runtime_response_limit_timeout_and_cancellation() -> None:
 
     oversized = FakeTransport([TransportResponse(200, {}, b"x" * 11)])
     with pytest.raises(ResponseTooLargeError):
-        await client(
-            policy=policy(response_body_bytes=10), transport=oversized
-        ).request("GET", "/api/")
+        await client(policy=policy(response_body_bytes=10), transport=oversized).request(
+            "GET", "/api/"
+        )
 
     class SlowTransport(FakeTransport):
         async def request(self, **kwargs: Any) -> TransportResponse:
@@ -232,9 +226,9 @@ async def test_budget_runtime_response_limit_timeout_and_cancellation() -> None:
             return TransportResponse(200, {}, b"ok")
 
     with pytest.raises(TimeoutError):
-        await client(
-            policy=policy(total_timeout_seconds=0.01), transport=SlowTransport()
-        ).request("GET", "/api/")
+        await client(policy=policy(total_timeout_seconds=0.01), transport=SlowTransport()).request(
+            "GET", "/api/"
+        )
 
     with pytest.raises(CancellationError):
         await client(cancellation_check=lambda: True).request("GET", "/api/")
@@ -250,14 +244,12 @@ async def test_cancellation_rechecked_after_dns_before_transport() -> None:
         return frozenset({ipaddress.ip_address("8.8.8.8")})
 
     with pytest.raises(CancellationError):
-        await client(cancellation_check=lambda: cancelled, resolver=resolve).request(
-            "GET", "/api/"
-        )
+        await client(cancellation_check=lambda: cancelled, resolver=resolve).request("GET", "/api/")
 
 
 @pytest.mark.asyncio
 async def test_tokens_are_redacted_from_response_headers_body_and_audit() -> None:
-    secret = "very-secret-token"
+    secret = "very-secret-token"  # noqa: S105 - synthetic redaction fixture
     audit = AuditChain()
     transport = FakeTransport(
         [
@@ -278,7 +270,7 @@ async def test_tokens_are_redacted_from_response_headers_body_and_audit() -> Non
 
 
 def test_recursive_redaction_covers_metadata_and_evidence() -> None:
-    secret = "secret-value"
+    secret = "secret-value"  # noqa: S105 - synthetic redaction fixture
     value = {
         "authorization": f"Bearer {secret}",
         "nested": [{"api_key": secret}, f"token={secret}"],
@@ -310,9 +302,7 @@ def test_checks_cannot_import_network_clients_or_sockets() -> None:
             for alias in node.names
         }
         imports |= {
-            node.module or ""
-            for node in ast.walk(tree)
-            if isinstance(node, ast.ImportFrom)
+            node.module or "" for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)
         }
         assert not any(
             imported == name or imported.startswith(name + ".")

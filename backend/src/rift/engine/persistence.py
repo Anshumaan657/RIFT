@@ -56,9 +56,7 @@ async def persist_result(
                 "path": capture.path,
                 "request_headers": capture.request_headers,
                 "status_code": capture.response.status_code,
-                "response_headers": dict(
-                    capture.response.raw_headers or capture.response.headers
-                ),
+                "response_headers": dict(capture.response.raw_headers or capture.response.headers),
                 "body": (capture.response.raw_body or capture.response.body).decode(
                     "utf-8", errors="replace"
                 ),

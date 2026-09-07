@@ -82,8 +82,17 @@ def protect_report_content(_mapper: object, _connection: object, target: ReportA
     from sqlalchemy import inspect
 
     state = inspect(target)
-    immutable = ("assessment_id", "organization_id", "format", "variant", "content",
-                 "file_digest", "snapshot_digest", "snapshot", "source_artifact_id",
-                 "idempotency_key")
+    immutable = (
+        "assessment_id",
+        "organization_id",
+        "format",
+        "variant",
+        "content",
+        "file_digest",
+        "snapshot_digest",
+        "snapshot",
+        "source_artifact_id",
+        "idempotency_key",
+    )
     if any(state.attrs[name].history.has_changes() for name in immutable):
         raise ValueError("generated report content and snapshot are immutable")

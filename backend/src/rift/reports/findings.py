@@ -57,9 +57,7 @@ CONFIG_LABELS = {
 }
 
 
-async def materialize_findings(
-    session: AsyncSession, assessment_id: UUID
-) -> list[Finding]:
+async def materialize_findings(session: AsyncSession, assessment_id: UUID) -> list[Finding]:
     executions = (
         await session.scalars(
             select(CheckExecution).where(

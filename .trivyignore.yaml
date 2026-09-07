@@ -1,0 +1,9 @@
+misconfigurations:
+  - id: AVD-DS-0002
+    paths:
+      - "infra/egress/Dockerfile"
+    expired_at: 2026-12-01
+    statement: >-
+      The egress initializer must start as root with only NET_ADMIN so it can install
+      namespace-local OUTPUT rules. The entrypoint then drops to UID 10001 using
+      su-exec; Compose also enforces a read-only filesystem and no-new-privileges.

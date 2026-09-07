@@ -1,6 +1,5 @@
 """Escaped deterministic HTML, JSON, and PDF rendering."""
 
-
 from jinja2 import BaseLoader, Environment, select_autoescape
 from weasyprint import HTML
 
@@ -57,12 +56,16 @@ def render_report(
                 **snapshot,
             }
         ).encode()
-    html = ENV.from_string(TEMPLATE).render(
-        report=snapshot,
-        variant=variant.value,
-        snapshot_digest=snapshot_digest,
-        review_status=review_status,
-    ).encode()
+    html = (
+        ENV.from_string(TEMPLATE)
+        .render(
+            report=snapshot,
+            variant=variant.value,
+            snapshot_digest=snapshot_digest,
+            review_status=review_status,
+        )
+        .encode()
+    )
     if format == ReportFormat.HTML:
         return html
     return bytes(HTML(string=html.decode()).write_pdf())

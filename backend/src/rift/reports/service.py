@@ -157,9 +157,7 @@ async def create_report(
                 "evidence_refs": json.loads(item.evidence_refs),
                 "operator_reviewed_by": item.operator_reviewed_by,
                 "operator_reviewed_at": (
-                    item.operator_reviewed_at.isoformat()
-                    if item.operator_reviewed_at
-                    else None
+                    item.operator_reviewed_at.isoformat() if item.operator_reviewed_at else None
                 ),
             }
             for item in findings
@@ -172,8 +170,11 @@ async def create_report(
     }
     snapshot_digest = hashlib.sha256(canonical_json(snapshot).encode()).hexdigest()
     content = render_report(
-        snapshot, format=format, variant=variant, snapshot_digest=snapshot_digest,
-        review_status="draft"
+        snapshot,
+        format=format,
+        variant=variant,
+        snapshot_digest=snapshot_digest,
+        review_status="draft",
     )
     artifact = ReportArtifact(
         assessment_id=assessment_id,

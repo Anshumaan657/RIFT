@@ -12,6 +12,7 @@ from rift.db.session import create_engine, create_session_factory, database_is_r
 from rift.domain.models import Assessment, AssessmentState, JobState
 from rift.logging import configure_logging
 from rift.settings import get_settings
+from rift.worker.health import touch_heartbeat
 from rift.worker.repository import MAX_ATTEMPTS, JobRepository
 from rift.worker.service import (
     execute_job,
@@ -36,6 +37,7 @@ async def run() -> None:
         "worker_started", database_ready=await database_is_ready(engine), worker_id=worker_id
     )
     while not stopping.is_set():
+        touch_heartbeat(settings.worker_heartbeat_path)
         async with factory() as session:
             repository = JobRepository(session)
             job = await repository.claim(worker_id)
@@ -64,12 +66,8 @@ async def run() -> None:
                 retryable = retryable_transport_error(exc)
                 if not retryable or job.attempt_count >= MAX_ATTEMPTS:
                     await persist_terminal_failure(session, job, type(exc).__name__.upper())
-                await repository.fail(
-                    job, type(exc).__name__.upper(), retryable=retryable
-                )
-                logger.warning(
-                    "job_failed", job_id=str(job.id), retryable=retryable
-                )
+                await repository.fail(job, type(exc).__name__.upper(), retryable=retryable)
+                logger.warning("job_failed", job_id=str(job.id), retryable=retryable)
             else:
                 if job.state != JobState.CANCELLED:
                     await repository.succeed(job)
@@ -92,6 +90,7 @@ async def maintain_lease(
     """Renew a running lease and relay cancellation between requests."""
     while not stop.is_set():
         async with factory() as heartbeat_session:
+            touch_heartbeat(get_settings().worker_heartbeat_path)
             assessment = await heartbeat_session.get(Assessment, assessment_id)
             if assessment is None or assessment.state in {
                 AssessmentState.CANCELLING,

@@ -455,6 +455,10 @@ Suggested commit: `feat: add assisted V1 assessment workflow`
 
 ### Phase 8 — hardening and pilot deployment
 
+Status: engineering and internal rehearsals complete; pilot release remains gated
+on the independent application-security sign-off recorded in
+`docs/phase8-security-review.md`.
+
 Deliverables:
 
 - Add production configuration validation, TLS termination, restrictive network

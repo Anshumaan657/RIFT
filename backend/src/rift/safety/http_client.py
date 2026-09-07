@@ -345,6 +345,12 @@ class SafeHttpClient:
                 or address.is_private
             ):
                 raise PolicyError("destination IP is not globally routable")
+            elif self.policy.allowed_target_networks and not any(
+                address in network
+                for network in self.policy.allowed_target_networks
+                if network.version == address.version
+            ):
+                raise PolicyError("destination IP is outside the deployment egress allowlist")
 
     def _validate_redirect(self, current_path: str, location: str) -> str:
         absolute = urljoin(

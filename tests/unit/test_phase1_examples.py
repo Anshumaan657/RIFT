@@ -15,9 +15,7 @@ def load(name: str) -> object:
 
 
 def test_assessment_example_matches_schema() -> None:
-    model = AssessmentConfiguration.model_validate(
-        load("assessment-configuration.json")
-    )
+    model = AssessmentConfiguration.model_validate(load("assessment-configuration.json"))
     assert len(model.selected_checks) == 3
 
 

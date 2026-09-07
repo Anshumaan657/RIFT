@@ -22,8 +22,8 @@ from rift.domain.models import (
     AuthorizationStatus,
     Job,
     JobState,
-    TargetVerificationState,
     TargetEnabledState,
+    TargetVerificationState,
 )
 from rift.domain.state import (
     InvalidStateTransition,
@@ -84,13 +84,9 @@ def test_login_sets_secure_strict_http_only_cookie(
 
     auth = AuthService("s" * 32)
     monkeypatch.setenv("RIFT_DATABASE_URL", "postgresql+asyncpg://u:p@localhost/rift")
-    monkeypatch.setenv(
-        "RIFT_MASTER_KEY_B64", base64.urlsafe_b64encode(b"k" * 32).decode()
-    )
+    monkeypatch.setenv("RIFT_MASTER_KEY_B64", base64.urlsafe_b64encode(b"k" * 32).decode())
     monkeypatch.setenv("RIFT_SESSION_SECRET", "s" * 32)
-    monkeypatch.setenv(
-        "RIFT_OPERATOR_PASSWORD_HASH", auth.hash_password("operator-password")
-    )
+    monkeypatch.setenv("RIFT_OPERATOR_PASSWORD_HASH", auth.hash_password("operator-password"))
     get_settings.cache_clear()
     get_auth_service.cache_clear()
     app = FastAPI()
@@ -154,9 +150,7 @@ def test_models_expose_required_constraints_and_timestamps() -> None:
     constraint_names = {constraint.name for constraint in metadata.constraints}
     assert "ck_assessment_budget" in constraint_names
     assert {"created_at", "updated_at"} <= set(metadata.columns.keys())
-    assert {"previous_hash", "event_hash"} <= set(
-        inspect(AuditEvent).local_table.columns.keys()
-    )
+    assert {"previous_hash", "event_hash"} <= set(inspect(AuditEvent).local_table.columns.keys())
 
 
 def test_settings_reject_ceiling_increases_and_non_dev_lab_mode() -> None:

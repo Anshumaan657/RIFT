@@ -7,10 +7,11 @@ and clear reports. It does not automatically fix or deploy changes to a target.
 
 ## Current status
 
-Phase 7 provides the complete assisted operator workflow: authenticated onboarding,
-authorization and exact target review, hidden test-identity credentials, controlled
-assessment execution and cancellation, evidence-backed finding review, history, and
-reviewed report downloads. Phase 8 hardening and pilot deployment remain next.
+Phase 8 engineering hardening is implemented: fail-closed pilot configuration, TLS
+termination, deployment egress filtering, security headers, encrypted backup and
+restore tooling, retention and deletion controls, worker health, capacity and audit
+monitoring, key rotation, and a pilot operations runbook. Pilot launch remains gated
+on the documented independent application-security review.
 
 ## V1 direction
 
@@ -20,6 +21,8 @@ strict scope enforcement, and findings a developer can independently reproduce.
 
 See [V1 scope](docs/V1_SCOPE.md) and [architecture](docs/ARCHITECTURE.md).
 Phase 4 operation and invariants are documented in [Phase 4](docs/PHASE4.md).
+Pilot procedures are in [operations](docs/operations.md), and the external review
+gate is in the [Phase 8 security-review packet](docs/phase8-security-review.md).
 
 ## Folder structure
 
