@@ -27,7 +27,11 @@ from rift.domain.models import (
     Application,
     Assessment,
     AssessmentState,
+    AuditEvent,
     AuthorizationRecord,
+    CheckExecution,
+    Job,
+    JobState,
     Organization,
     ResourceExpectation,
     Target,
@@ -335,14 +339,98 @@ async def cancel_assessment(
     assessment = await session.get(Assessment, assessment_id)
     if assessment is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "assessment not found")
+    if assessment.state in {
+        AssessmentState.CANCELLING,
+        AssessmentState.CANCELLED,
+    }:
+        return {"id": assessment.id, "state": assessment.state}
     destination = (
         AssessmentState.CANCELLED
-        if assessment.state == AssessmentState.DRAFT
+        if assessment.state in {AssessmentState.DRAFT, AssessmentState.QUEUED}
         else AssessmentState.CANCELLING
     )
     try:
         transition_assessment(assessment, destination, reason="operator requested cancellation")
     except InvalidStateTransition as exc:
         raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+    for job in (
+        await session.scalars(
+            select(Job).where(
+                Job.assessment_id == assessment.id,
+                Job.state.in_([JobState.PENDING, JobState.CLAIMED]),
+            )
+        )
+    ).all():
+        job.state = JobState.CANCELLED
+        job.lease_owner = None
+        job.lease_expires_at = None
     await session.commit()
     return {"id": assessment.id, "state": assessment.state}
+
+
+@router.get("/assessments/{assessment_id}")
+async def get_assessment(
+    assessment_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    _operator: str = Depends(current_operator),
+) -> dict[str, object]:
+    assessment = await session.get(Assessment, assessment_id)
+    if assessment is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "assessment not found")
+    executions = (
+        await session.scalars(
+            select(CheckExecution)
+            .where(CheckExecution.assessment_id == assessment_id)
+            .order_by(CheckExecution.check_identifier)
+        )
+    ).all()
+    return {
+        "id": assessment.id,
+        "application_id": assessment.application_id,
+        "target_id": assessment.target_id,
+        "state": assessment.state,
+        "selected_checks": json.loads(assessment.selected_checks),
+        "request_budget": assessment.request_budget,
+        "started_at": assessment.started_at,
+        "completed_at": assessment.completed_at,
+        "terminal_reason": assessment.terminal_reason,
+        "checks": [
+            {
+                "check_identifier": item.check_identifier,
+                "check_version": item.check_version,
+                "outcome": item.outcome,
+                "reason_code": item.reason_code,
+                "summary": item.summary,
+            }
+            for item in executions
+        ],
+    }
+
+
+@router.get("/assessments/{assessment_id}/audit-events")
+async def get_audit_events(
+    assessment_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    _operator: str = Depends(current_operator),
+) -> list[dict[str, object]]:
+    if await session.get(Assessment, assessment_id) is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "assessment not found")
+    events = (
+        await session.scalars(
+            select(AuditEvent)
+            .where(AuditEvent.assessment_id == assessment_id)
+            .order_by(AuditEvent.timestamp, AuditEvent.id)
+        )
+    ).all()
+    return [
+        {
+            "id": event.id,
+            "event_type": event.event_type,
+            "timestamp": event.timestamp,
+            "actor": event.actor,
+            "metadata": json.loads(event.sanitized_metadata),
+            "previous_hash": event.previous_hash,
+            "event_hash": event.event_hash,
+        }
+        for event in events
+    ]

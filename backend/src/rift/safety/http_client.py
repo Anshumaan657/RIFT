@@ -6,7 +6,7 @@ import ipaddress
 import ssl
 import time
 from collections.abc import Awaitable, Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol
 from urllib.parse import urljoin, urlsplit
 
@@ -163,6 +163,10 @@ class SafeResponse:
     body: bytes
     body_digest: str
     path: str
+    redirect_history: tuple[int, ...] = ()
+    security_metadata: Mapping[str, object] = field(default_factory=dict)
+    raw_body: bytes = field(default=b"", repr=False)
+    raw_headers: Mapping[str, str] = field(default_factory=dict, repr=False)
 
 
 class SafeHttpClient:
@@ -229,6 +233,7 @@ class SafeHttpClient:
         self, method: str, initial_path: str, headers: Mapping[str, str]
     ) -> SafeResponse:
         path = initial_path
+        redirect_history: list[int] = []
         for redirect_count in range(3):
             self._check_cancelled()
             self._check_runtime_and_budget()
@@ -279,6 +284,10 @@ class SafeHttpClient:
                     safe_body,
                     hashlib.sha256(response.body).hexdigest(),
                     path,
+                    tuple(redirect_history),
+                    self._security_metadata(response.headers),
+                    response.body,
+                    response.headers,
                 )
             if redirect_count == 2:
                 raise RedirectLimitError("redirect limit exceeded")
@@ -286,7 +295,23 @@ class SafeHttpClient:
             if not location:
                 raise ScopeViolation("redirect response has no Location header")
             path = self._validate_redirect(path, location)
+            redirect_history.append(response.status_code)
         raise RedirectLimitError("redirect limit exceeded")
+
+    @staticmethod
+    def _security_metadata(headers: Mapping[str, str]) -> dict[str, object]:
+        cookie = headers.get("set-cookie", "").lower()
+        return {
+            "cookie_flags": [
+                {
+                    "secure": "; secure" in cookie,
+                    "httponly": "; httponly" in cookie,
+                    "samesite": "; samesite=" in cookie,
+                }
+            ]
+            if cookie
+            else []
+        }
 
     def _prepare_headers(self, supplied: Mapping[str, str]) -> dict[str, str]:
         result = {

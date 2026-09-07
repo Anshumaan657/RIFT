@@ -85,6 +85,15 @@ class JobState(str, enum.Enum):
     CANCELLED = "cancelled"
 
 
+class CheckOutcome(str, enum.Enum):
+    PASSED = "passed"
+    FINDING = "finding"
+    INCONCLUSIVE = "inconclusive"
+    ERROR = "error"
+    SKIPPED = "skipped"
+    CANCELLED = "cancelled"
+
+
 class AuditEventType(str, enum.Enum):
     ASSESSMENT_CREATED = "assessment_created"
     ASSESSMENT_QUEUED = "assessment_queued"
@@ -373,6 +382,9 @@ class Assessment(Base):
     evidence: Mapped[list["Evidence"]] = relationship(back_populates="assessment", lazy="selectin")
     findings: Mapped[list["Finding"]] = relationship(back_populates="assessment", lazy="selectin")
     reports: Mapped[list["Report"]] = relationship(back_populates="assessment", lazy="selectin")
+    check_executions: Mapped[list["CheckExecution"]] = relationship(
+        back_populates="assessment", lazy="selectin"
+    )
 
     __table_args__ = (
         CheckConstraint("request_budget BETWEEN 1 AND 100", name="ck_assessment_budget"),
@@ -398,6 +410,10 @@ class Job(Base):
     lease_expires_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    available_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     error_code: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -409,9 +425,54 @@ class Job(Base):
     assessment: Mapped["Assessment"] = relationship(back_populates="jobs", lazy="selectin")
 
     __table_args__ = (
-        CheckConstraint("attempt_count >= 0", name="ck_job_attempt_count"),
+        CheckConstraint("attempt_count BETWEEN 0 AND 2", name="ck_job_attempt_count"),
+        UniqueConstraint(
+            "assessment_id", "check_identifier", "check_version", name="uq_job_assessment_check"
+        ),
         Index("ix_jobs_assessment_state", "assessment_id", "state"),
         Index("ix_jobs_lease", "lease_owner", "lease_expires_at"),
+    )
+
+
+class CheckExecution(Base):
+    """One immutable terminal outcome for a versioned check."""
+
+    __tablename__ = "check_executions"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    assessment_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False
+    )
+    check_identifier: Mapped[str] = mapped_column(String(100), nullable=False)
+    check_version: Mapped[str] = mapped_column(String(20), nullable=False)
+    outcome: Mapped[CheckOutcome] = mapped_column(
+        Enum(CheckOutcome, values_callable=enum_values), nullable=False
+    )
+    reason_code: Mapped[str] = mapped_column(String(100), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    evidence_refs: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    observations: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    assessment: Mapped["Assessment"] = relationship(
+        back_populates="check_executions", lazy="selectin"
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "assessment_id",
+            "check_identifier",
+            "check_version",
+            name="uq_check_execution_assessment_check",
+        ),
+        Index("ix_check_executions_assessment_outcome", "assessment_id", "outcome"),
     )
 
 
@@ -560,3 +621,10 @@ def prevent_assessment_snapshot_mutation(
 @event.listens_for(AuditEvent, "before_update")
 def prevent_audit_update(_mapper: object, _connection: object, _target: AuditEvent) -> None:
     raise ValueError("audit events are append-only")
+
+
+@event.listens_for(CheckExecution, "before_update")
+def prevent_check_execution_update(
+    _mapper: object, _connection: object, _target: CheckExecution
+) -> None:
+    raise ValueError("check executions are immutable")
