@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from rift import __version__
 from rift.api.report_routes import router as report_router
 from rift.api.routes import router
+from rift.api.ui_routes import router as ui_router
 from rift.db.session import create_engine, database_is_ready
 from rift.logging import configure_logging
 from rift.settings import get_settings
@@ -28,6 +29,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(title="RIFT Operator API", version=__version__, lifespan=lifespan)
 app.include_router(router)
 app.include_router(report_router)
+app.include_router(ui_router)
 
 
 @app.exception_handler(HTTPException)

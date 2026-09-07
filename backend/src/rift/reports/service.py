@@ -80,6 +80,8 @@ async def create_report(
             .order_by(Finding.check_identifier)
         )
     ).all()
+    if any(item.operator_reviewed_at is None for item in findings):
+        raise ValueError("all findings must receive operator review before report generation")
     evidence = (
         await session.scalars(
             select(Evidence)
@@ -153,6 +155,12 @@ async def create_report(
                 "remediation_guidance": item.remediation_guidance,
                 "reproduction_guidance": item.reproduction_guidance,
                 "evidence_refs": json.loads(item.evidence_refs),
+                "operator_reviewed_by": item.operator_reviewed_by,
+                "operator_reviewed_at": (
+                    item.operator_reviewed_at.isoformat()
+                    if item.operator_reviewed_at
+                    else None
+                ),
             }
             for item in findings
         ],

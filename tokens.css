@@ -1,0 +1,36 @@
+:root {
+  --color-paper: oklch(98.5% 0.008 255);
+  --color-surface: oklch(100% 0 0);
+  --color-surface-soft: oklch(96.8% 0.012 255);
+  --color-ink: oklch(22% 0.035 258);
+  --color-muted: oklch(49% 0.025 255);
+  --color-rule: oklch(86% 0.018 255);
+  --color-rule-strong: oklch(68% 0.035 255);
+  --color-cobalt: oklch(48% 0.2 260);
+  --color-cobalt-dark: oklch(37% 0.17 260);
+  --color-cobalt-soft: oklch(94.5% 0.035 260);
+  --color-success: oklch(43% 0.12 155);
+  --color-success-soft: oklch(95% 0.04 155);
+  --color-danger: oklch(48% 0.18 25);
+  --color-danger-soft: oklch(95% 0.04 25);
+  --color-warning: oklch(47% 0.11 75);
+  --color-warning-soft: oklch(95% 0.045 75);
+  --color-on-accent: oklch(100% 0 0);
+  --font-sans: Inter, "Avenir Next", "Segoe UI", sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, monospace;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --text-sm: 0.8rem;
+  --text-body: 1rem;
+  --text-display: clamp(2rem, 7vw, 4.25rem);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 120ms;
+  --radius: 0.35rem;
+  --rule-thin: 1px;
+  --shadow-focus: 0 0 0 3px var(--color-cobalt-soft);
+}

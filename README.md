@@ -7,10 +7,10 @@ and clear reports. It does not automatically fix or deploy changes to a target.
 
 ## Current status
 
-Phase 4 provides the persistent onboarding model, single-operator authentication,
-authorization and target verification records, immutable assessment snapshots,
-and the mandatory controlled HTTP safety boundary. Security check execution and
-report generation remain for later phases.
+Phase 7 provides the complete assisted operator workflow: authenticated onboarding,
+authorization and exact target review, hidden test-identity credentials, controlled
+assessment execution and cancellation, evidence-backed finding review, history, and
+reviewed report downloads. Phase 8 hardening and pilot deployment remain next.
 
 ## V1 direction
 
@@ -91,6 +91,13 @@ ruff check backend/src tests/unit tests/safety scripts
 (cd backend && mypy && pytest)
 (cd frontend && npm run format:check && npm run lint && npm test && npm run build)
 docker compose --env-file .env -f infra/compose.yaml config --quiet
+```
+
+Run the mocked critical browser journey, including responsive checks at 320, 375,
+414, and 768 pixels, with an installed Playwright Chromium or local Chrome:
+
+```sh
+(cd frontend && npm run test:e2e)
 ```
 
 Run migrations inside the API container:

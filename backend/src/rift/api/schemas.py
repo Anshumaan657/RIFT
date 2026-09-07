@@ -57,6 +57,12 @@ class TestIdentityCreate(BaseModel):
     token_expiry: datetime | None = None
 
 
+class TestIdentityUpdate(BaseModel):
+    label: str | None = Field(default=None, min_length=1, max_length=100)
+    bearer_token: str = Field(min_length=1, max_length=16_384)
+    token_expiry: datetime | None = None
+
+
 class ResourceExpectationCreate(BaseModel):
     application_id: UUID
     endpoint_template: str = Field(min_length=1, max_length=500)

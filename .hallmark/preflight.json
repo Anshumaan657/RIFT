@@ -1,0 +1,8 @@
+{
+  "date": "2026-09-07",
+  "font_stack": "Inter and system sans with SFMono-Regular for evidence",
+  "palette": "existing dark scaffold expanded into OKLCH Cobalt operator tokens",
+  "motion": "motion-cut; no motion dependency installed",
+  "spacing": "4-point semantic scale",
+  "framework": "React 19, Vite 8, React Router 7"
+}

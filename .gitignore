@@ -25,6 +25,8 @@ dist/
 build/
 .next/
 coverage/
+playwright-report/
+test-results/
 *.tsbuildinfo
 
 # Python environments and caches

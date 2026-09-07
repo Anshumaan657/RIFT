@@ -52,6 +52,7 @@ select = ["E", "F", "I", "B", "UP", "ASYNC", "S"]
 "src/rift/api/dependencies.py" = ["B008"]
 "src/rift/api/routes.py" = ["B008"]
 "src/rift/api/report_routes.py" = ["B008"]
+"src/rift/api/ui_routes.py" = ["B008"]
 "src/rift/reports/render.py" = ["E501"]
 
 [tool.mypy]
