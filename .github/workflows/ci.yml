@@ -78,28 +78,28 @@ jobs:
       - run: docker build --provenance=false --tag rift-api:ci backend
       - run: docker build --provenance=false --target production --tag rift-frontend:ci frontend
       - run: docker build --provenance=false --tag rift-egress:ci infra/egress
-      - uses: aquasecurity/trivy-action@0.36.0
+      - uses: aquasecurity/trivy-action@v0.28.0
         with:
           scan-type: image
           image-ref: rift-api:ci
           severity: HIGH,CRITICAL
           exit-code: "1"
           ignore-unfixed: true
-      - uses: aquasecurity/trivy-action@0.36.0
+      - uses: aquasecurity/trivy-action@v0.28.0
         with:
           scan-type: image
           image-ref: rift-frontend:ci
           severity: HIGH,CRITICAL
           exit-code: "1"
           ignore-unfixed: true
-      - uses: aquasecurity/trivy-action@0.36.0
+      - uses: aquasecurity/trivy-action@v0.28.0
         with:
           scan-type: image
           image-ref: rift-egress:ci
           severity: HIGH,CRITICAL
           exit-code: "1"
           ignore-unfixed: true
-      - uses: aquasecurity/trivy-action@0.36.0
+      - uses: aquasecurity/trivy-action@v0.28.0
         with:
           scan-type: config
           scan-ref: .

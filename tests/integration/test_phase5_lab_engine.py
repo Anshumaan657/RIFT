@@ -28,7 +28,9 @@ class LabControlledClient:
         self.client = TestClient(create_app(mode))  # type: ignore[arg-type]
 
     async def request(self, method: str, path: str, *, headers=None) -> SafeResponse:
-        upstream = self.client.request(method, path, headers=headers or {}, follow_redirects=True)
+        upstream = self.client.request(
+            method, path, headers=headers or {}, follow_redirects=True
+        )
         body = upstream.content
         return SafeResponse(
             upstream.status_code,

@@ -19,5 +19,5 @@ jobs:
       - run: ruff check lab tests/integration
       - run: pytest tests/integration
         env:
-          PYTHONPATH: lab/src
+          PYTHONPATH: lab/src:backend/src
       - run: docker compose --env-file .env.example -f infra/compose.yaml -f infra/compose.lab.yaml config --quiet
