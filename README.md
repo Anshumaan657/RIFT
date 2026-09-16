@@ -23,6 +23,7 @@ See [V1 scope](docs/V1_SCOPE.md) and [architecture](docs/ARCHITECTURE.md).
 Phase 4 operation and invariants are documented in [Phase 4](docs/PHASE4.md).
 Pilot procedures are in [operations](docs/operations.md), and the external review
 gate is in the [Phase 8 security-review packet](docs/phase8-security-review.md).
+Phase 9 pilot templates are in [`docs/pilot/`](docs/pilot/).
 
 ## Folder structure
 

@@ -51,7 +51,7 @@ typing_extensions==4.16.0
 uvicorn==0.35.0
 uvloop==0.22.1
 watchfiles==1.2.0
-weasyprint==69.0
+weasyprint==70.0
 webencodings==0.6.1
 websockets==17.1
 zopfli==0.4.3

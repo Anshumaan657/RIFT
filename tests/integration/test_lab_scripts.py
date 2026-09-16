@@ -24,9 +24,7 @@ def test_manual_verifier_rejects_external_targets() -> None:
 def test_manual_verifier_allows_only_exact_compose_services_when_enabled() -> None:
     verifier = load_script("verify_lab.py")
     assert (
-        verifier.validate_base_url(
-            "http://lab-vulnerable:8080/", allow_compose_network=True
-        )
+        verifier.validate_base_url("http://lab-vulnerable:8080/", allow_compose_network=True)
         == "http://lab-vulnerable:8080/"
     )
     with pytest.raises(ValueError, match="approved"):

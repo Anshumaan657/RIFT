@@ -486,6 +486,11 @@ Suggested commit: `ops: harden RIFT for an assisted staging pilot`
 
 ### Phase 9 — controlled design-partner pilot
 
+Status: implementation and pilot templates are ready; execution remains pending
+an independent AppSec approval and a real, explicitly authorized staging partner.
+Use the packet in `docs/pilot/` for the preflight, sanitized issue log, and
+metrics record. Do not mark this phase complete from lab tests alone.
+
 Deliverables:
 
 - Onboard one design partner first using a signed authorization record, staging

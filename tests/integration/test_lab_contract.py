@@ -63,10 +63,7 @@ def test_common_failure_and_public_contract(lab: tuple[str, TestClient]) -> None
     assert client.get("/api/missing").status_code == 404
     assert client.get("/api/denied", headers=auth(TOKENS["a"])).status_code == 403
     assert client.get("/api/auth-required").status_code == 401
-    assert (
-        client.get("/api/auth-required", headers=auth(TOKENS["expired"])).status_code
-        == 401
-    )
+    assert client.get("/api/auth-required", headers=auth(TOKENS["expired"])).status_code == 401
     assert client.get("/api/error").status_code == 500
     response = client.get("/api/redirect", follow_redirects=False)
     assert response.status_code == 307
@@ -89,10 +86,7 @@ def test_configuration_profiles() -> None:
     assert "secure" not in vulnerable.headers["set-cookie"].lower()
     assert fixed.headers["x-content-type-options"] == "nosniff"
     fixed_cookie = fixed.headers["set-cookie"].lower()
-    assert all(
-        attribute in fixed_cookie
-        for attribute in ("secure", "httponly", "samesite=strict")
-    )
+    assert all(attribute in fixed_cookie for attribute in ("secure", "httponly", "samesite=strict"))
 
 
 def test_seed_is_deterministic_and_synthetic() -> None:

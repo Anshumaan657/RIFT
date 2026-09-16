@@ -11,6 +11,7 @@ ROOT = Path(__file__).parents[2]
 sys.path.insert(0, str(ROOT / "lab" / "src"))
 
 from lab_app.main import create_app  # noqa: E402
+
 from rift.domain.models import CheckOutcome  # noqa: E402
 from rift.engine.checks import authn, authz  # noqa: E402
 from rift.engine.contracts import ResourceInput  # noqa: E402
@@ -41,8 +42,8 @@ class LabControlledClient:
 RESOURCE = ResourceInput(
     path="/api/records/synthetic-record-b",
     marker="RIFT_SYNTHETIC_RECORD_B_7F2A",
-    owner_token="rift-lab-user-b-token",
-    alternate_token="rift-lab-user-a-token",
+    owner_token="rift-lab-user-b-token",  # noqa: S106
+    alternate_token="rift-lab-user-a-token",  # noqa: S106
 )
 
 
