@@ -5,7 +5,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 COPY requirements.lock ./requirements.lock
-RUN python -m pip install --no-cache-dir --upgrade pip==26.2.1 \
+RUN apt-get update \
+    && apt-get upgrade --yes --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip install --no-cache-dir --upgrade pip==26.2.1 \
     && python -m pip install --no-cache-dir --requirement requirements.lock \
     && python -m pip uninstall --yes pip
 COPY src ./src
